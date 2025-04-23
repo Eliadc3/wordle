@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>וורדעל בעברית</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>🎯 וורדעל בעברית</h1>
+    <input type="text" id="guessInput" maxlength="5">
+    <button onclick="submitGuess()">בדוק</button>
+    <div id="feedback"></div>
+
+    <script>
+        function submitGuess() {
+            let word = document.getElementById('guessInput').value;
+            fetch('/guess', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({'word': word})
+            }).then(response => response.json()).then(data => {
+                let feedbackHTML = '';
+                for (let color of data.feedback) {
+                    feedbackHTML += '<span style="padding:5px; background:' + color + '; color:white; margin:2px;">⬤</span>';
+                }
+                if (data.won) {
+                    feedbackHTML += '<p>🎉 ניצחת!</p>';
+                }
+                document.getElementById('feedback').innerHTML = feedbackHTML;
+            });
+        }
+    </script>
+</body>
+</html>
