@@ -3,32 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <title>וורדעל בעברית</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        #guessInput {
+            font-size: 24px;
+            padding: 10px;
+            width: 150px;
+            text-align: center;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        #feedback {
+            margin-top: 20px;
+        }
+        .feedback-letter {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            margin: 5px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            border-radius: 5px;
+        }
+        .green { background-color: #6aaa64; }
+        .yellow { background-color: #c9b458; }
+        .gray { background-color: #787c7e; }
+    </style>
 </head>
 <body>
     <h1>🎯 וורדעל בעברית</h1>
-    <input type="text" id="guessInput" maxlength="5">
+    <input type="text" id="guessInput" maxlength="5" autofocus>
     <button onclick="submitGuess()">בדוק</button>
     <div id="feedback"></div>
 
     <script>
         function submitGuess() {
             let word = document.getElementById('guessInput').value;
+            if (word.length !== 5) {
+                alert("הזן מילה בת 5 אותיות בעברית.");
+                return;
+            }
+
             fetch('/guess', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({'word': word})
             }).then(response => response.json()).then(data => {
                 let feedbackHTML = '';
-                for (let color of data.feedback) {
-                    feedbackHTML += '<span style="padding:5px; background:' + color + '; color:white; margin:2px;">⬤</span>';
+                for (let i = 0; i < data.feedback.length; i++) {
+                    feedbackHTML += '<div class="feedback-letter ' + data.feedback[i] + '">' + word[i] + '</div>';
                 }
                 if (data.won) {
-                    feedbackHTML += '<p>🎉 ניצחת!</p>';
+                    feedbackHTML += '<p>🎉 ניצחת! המילה הייתה: ' + word + '</p>';
                 }
-                document.getElementById('feedback').innerHTML = feedbackHTML;
+                document.getElementById('feedback').innerHTML += '<div>' + feedbackHTML + '</div>';
+                document.getElementById('guessInput').value = '';
             });
         }
+
+        document.getElementById('guessInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                submitGuess();
+            }
+        });
     </script>
+    <footer style="margin-top: 40px; color: #777;">יוצר: אליעד כהן</footer>
 </body>
 </html>
